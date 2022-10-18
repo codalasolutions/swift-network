@@ -15,7 +15,7 @@ public class DefaultRequestBuilder: RequestBuilder {
         return nil
     }()
 
-    required public init() {}
+    public required init() {}
 
     public func set(scheme: String) -> Self {
         components.scheme = scheme
@@ -32,9 +32,9 @@ public class DefaultRequestBuilder: RequestBuilder {
         return self
     }
 
-    public func set(params: [String : String]) -> Self {
+    public func set(query: [String: String]) -> Self {
         components.queryItems = []
-        params.forEach {
+        query.forEach {
             components.queryItems?.append(.init(name: $0, value: $1))
         }
         return self
@@ -45,15 +45,15 @@ public class DefaultRequestBuilder: RequestBuilder {
         return self
     }
 
-    public func set(headers: [String : String]) -> Self {
+    public func set(headers: [String: String]) -> Self {
         headers.forEach {
             request?.setValue($1, forHTTPHeaderField: $0)
         }
         return self
     }
 
-    public func set(methodType: MethodType) -> Self {
-        request?.httpMethod = methodType.rawValue
+    public func set(method: MethodType) -> Self {
+        request?.httpMethod = method.rawValue
         return self
     }
 
@@ -63,7 +63,7 @@ public class DefaultRequestBuilder: RequestBuilder {
         return self
     }
 
-    public func set(body: [String : Any]) -> Self {
+    public func set(body: [String: Any]) -> Self {
         let body = try? JSONSerialization.data(withJSONObject: body)
         request?.httpBody = body
         return self

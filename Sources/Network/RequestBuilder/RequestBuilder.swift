@@ -13,12 +13,12 @@ public protocol RequestBuilder {
     func set(host: String) -> Self
     func set(path: String) -> Self
 
-    func set(params: [String: String]) -> Self
+    func set(query: [String: String]) -> Self
 
     func set(contentType: ContentType) -> Self
     func set(headers: [String: String]) -> Self
 
-    func set(methodType: MethodType) -> Self
+    func set(method: MethodType) -> Self
 
     // json
     func set<T: Encodable>(body: T) -> Self
