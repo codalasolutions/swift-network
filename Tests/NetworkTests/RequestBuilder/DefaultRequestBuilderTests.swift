@@ -43,7 +43,7 @@ final class DefaultRequestBuilderTests: XCTestCase {
         let request = sut
             .set(headers: ["Key1": "Val1", "Key2": "Val2"])
             .set(method: .put)
-            .set(host: "www.example.com")
+            .set(host: "www.something.org")
             .set(scheme: "http")
             .build()
 
@@ -61,7 +61,7 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(method: .post)
             .set(contentType: .json)
             .set(scheme: "https")
-            .set(host: "www.example.com")
+            .set(host: "www.anything.gov.ge")
             .set(body: Body(key: "val"))
             .build()
 
@@ -81,7 +81,7 @@ final class DefaultRequestBuilderTests: XCTestCase {
                 "key2": ["val", "val"]
             ])
             .set(scheme: "http")
-            .set(host: "www.example.com")
+            .set(host: "www.whatever.ge")
             .set(method: .patch)
             .build()
 
@@ -97,7 +97,7 @@ final class DefaultRequestBuilderTests: XCTestCase {
     func testBodyDataContentTypePlain() {
         let request = sut
             .set(body: Data("Some Data".utf8))
-            .set(host: "www.example.com")
+            .set(host: "www.some.company.name.com")
             .set(method: .delete)
             .set(scheme: "https")
             .set(contentType: .plain)
@@ -115,14 +115,14 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(method: .put)
             .set(contentType: .json)
             .set(scheme: "http")
-            .set(host: "www.example.com")
-            .set(path: "/some/path")
+            .set(host: "www.full.functionality.com")
+            .set(path: "/some/random/path")
             .set(query: ["key": "val"])
             .set(headers: ["key": "val"])
             .set(body: ["key": "val"])
             .build()
 
-        XCTAssertEqual(request?.url?.absoluteString, "http://www.example.com/some/path?key=val")
+        XCTAssertEqual(request?.url?.absoluteString, "http://www.full.functionality.com/some/random/path?key=val")
         XCTAssertEqual(request?.httpMethod, "PUT")
         XCTAssertEqual(request?.allHTTPHeaderFields?["Content-Type"], "application/json")
         XCTAssertEqual(request?.allHTTPHeaderFields?["key"], "val")
@@ -140,7 +140,7 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(body: ["key": "val"])
             .set(query: ["key": "val"])
             .set(path: "/some/path")
-            .set(host: "www.example.com")
+            .set(host: "www.reset.com")
             .set(scheme: "http")
             .set(method: .put)
             .build()
@@ -150,5 +150,17 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .build()
 
         XCTAssertEqual(defaultRequest, requestAfterReset)
+    }
+
+    func testBuildFail() {
+        XCTAssertNotNil(sut.build())
+
+        let request = sut
+            .reset()
+            .set(path: "//some/broken/path")
+            .set(scheme: "https")
+            .build()
+
+        XCTAssertNil(request)
     }
 }

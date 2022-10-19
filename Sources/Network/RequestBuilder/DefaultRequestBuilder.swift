@@ -9,8 +9,8 @@ import Foundation
 public class DefaultRequestBuilder: RequestBuilder {
     private lazy var components = defaultComponents
     private lazy var request = defaultRequest
-    private var defaultComponents: URLComponents { URLComponents() }
-    private var defaultRequest: URLRequest { URLRequest(url: defaultComponents.url!) }
+    private var defaultComponents: URLComponents { .init() }
+    private var defaultRequest: URLRequest { .init(url: defaultComponents.url!) }
 
     public required init() {}
 
