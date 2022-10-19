@@ -7,15 +7,18 @@
 import Foundation
 
 public class DefaultRequestBuilder: RequestBuilder {
-    private lazy var components = URLComponents()
-    private lazy var request: URLRequest? = {
-        if let url = components.url {
-            return URLRequest(url: url)
-        }
-        return nil
-    }()
+    private lazy var components = defaultComponents
+    private lazy var request = defaultRequest
+    private var defaultComponents: URLComponents { URLComponents() }
+    private var defaultRequest: URLRequest { URLRequest(url: defaultComponents.url!) }
 
     public required init() {}
+
+    public func reset() -> Self {
+        components = defaultComponents
+        request = defaultRequest
+        return self
+    }
 
     public func set(scheme: String) -> Self {
         components.scheme = scheme
@@ -41,40 +44,44 @@ public class DefaultRequestBuilder: RequestBuilder {
     }
 
     public func set(contentType: ContentType) -> Self {
-        request?.setValue(contentType.rawValue, forHTTPHeaderField: "Content-Type")
+        request.setValue(contentType.rawValue, forHTTPHeaderField: "Content-Type")
         return self
     }
 
     public func set(headers: [String: String]) -> Self {
         headers.forEach {
-            request?.setValue($1, forHTTPHeaderField: $0)
+            request.setValue($1, forHTTPHeaderField: $0)
         }
         return self
     }
 
     public func set(method: MethodType) -> Self {
-        request?.httpMethod = method.rawValue
+        request.httpMethod = method.rawValue
         return self
     }
 
     public func set<T: Encodable>(body: T) -> Self {
         let body = try? JSONEncoder().encode(body)
-        request?.httpBody = body
+        request.httpBody = body
         return self
     }
 
     public func set(body: [String: Any]) -> Self {
         let body = try? JSONSerialization.data(withJSONObject: body)
-        request?.httpBody = body
+        request.httpBody = body
         return self
     }
 
     public func set(body: Data) -> Self {
-        request?.httpBody = body
+        request.httpBody = body
         return self
     }
 
     public func build() -> URLRequest? {
-        return request
+        if let url = components.url {
+            request.url = url
+            return request
+        }
+        return nil
     }
 }

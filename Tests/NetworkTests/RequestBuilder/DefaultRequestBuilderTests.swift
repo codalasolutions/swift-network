@@ -41,10 +41,10 @@ final class DefaultRequestBuilderTests: XCTestCase {
 
     func testHeaders() {
         let request = sut
-            .set(scheme: "http")
-            .set(host: "www.example.com")
-            .set(method: .put)
             .set(headers: ["Key1": "Val1", "Key2": "Val2"])
+            .set(method: .put)
+            .set(host: "www.example.com")
+            .set(scheme: "http")
             .build()
 
         XCTAssertEqual(request?.httpMethod, "PUT")
@@ -58,10 +58,10 @@ final class DefaultRequestBuilderTests: XCTestCase {
         }
 
         let request = sut
-            .set(scheme: "https")
-            .set(host: "www.example.com")
             .set(method: .post)
             .set(contentType: .json)
+            .set(scheme: "https")
+            .set(host: "www.example.com")
             .set(body: Body(key: "val"))
             .build()
 
@@ -75,14 +75,14 @@ final class DefaultRequestBuilderTests: XCTestCase {
 
     func testBodyDictionary() {
         let request = sut
-            .set(scheme: "http")
-            .set(host: "www.example.com")
-            .set(method: .patch)
             .set(contentType: .json)
             .set(body: [
                 "key1": "val1",
                 "key2": ["val", "val"]
             ])
+            .set(scheme: "http")
+            .set(host: "www.example.com")
+            .set(method: .patch)
             .build()
 
         XCTAssertEqual(request?.httpMethod, "PATCH")
@@ -96,11 +96,11 @@ final class DefaultRequestBuilderTests: XCTestCase {
 
     func testBodyDataContentTypePlain() {
         let request = sut
-            .set(scheme: "https")
+            .set(body: Data("Some Data".utf8))
             .set(host: "www.example.com")
             .set(method: .delete)
+            .set(scheme: "https")
             .set(contentType: .plain)
-            .set(body: Data("Some Data".utf8))
             .build()
 
         XCTAssertEqual(request?.httpMethod, "DELETE")
@@ -108,5 +108,47 @@ final class DefaultRequestBuilderTests: XCTestCase {
 
         let actual = String(decoding: request?.httpBody ?? .init(), as: UTF8.self)
         XCTAssertEqual(actual, "Some Data")
+    }
+
+    func testFullFunctionality() {
+        let request = sut
+            .set(method: .put)
+            .set(contentType: .json)
+            .set(scheme: "http")
+            .set(host: "www.example.com")
+            .set(path: "/some/path")
+            .set(query: ["key": "val"])
+            .set(headers: ["key": "val"])
+            .set(body: ["key": "val"])
+            .build()
+
+        XCTAssertEqual(request?.url?.absoluteString, "http://www.example.com/some/path?key=val")
+        XCTAssertEqual(request?.httpMethod, "PUT")
+        XCTAssertEqual(request?.allHTTPHeaderFields?["Content-Type"], "application/json")
+        XCTAssertEqual(request?.allHTTPHeaderFields?["key"], "val")
+        XCTAssertEqual(String(decoding: request?.httpBody ?? .init(), as: UTF8.self), "{\"key\":\"val\"}")
+    }
+
+    func testReset() {
+        let defaultRequest = sut.build()
+
+        XCTAssertNotNil(defaultRequest)
+
+        let _ = sut
+            .set(headers: ["key": "val"])
+            .set(contentType: .json)
+            .set(body: ["key": "val"])
+            .set(query: ["key": "val"])
+            .set(path: "/some/path")
+            .set(host: "www.example.com")
+            .set(scheme: "http")
+            .set(method: .put)
+            .build()
+
+        let requestAfterReset = sut
+            .reset()
+            .build()
+
+        XCTAssertEqual(defaultRequest, requestAfterReset)
     }
 }

@@ -9,6 +9,8 @@ import Foundation
 public protocol RequestBuilder {
     init()
 
+    func reset() -> Self
+
     func set(scheme: String) -> Self
     func set(host: String) -> Self
     func set(path: String) -> Self
