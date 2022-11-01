@@ -12,14 +12,14 @@ public protocol DataTransferService {
     init()
     init(session: URLSession)
 
-    @available(iOS 13.0, *)
+    @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func request<T: Decodable>(with request: URLRequest) async throws -> T
-    @available(iOS 13.0, *)
+    @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func request<T: Decodable>(with request: URLRequest) async throws -> Response<T>
 
-    @available(iOS 13.0, *)
+    @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func request(with request: URLRequest) async throws -> Data
-    @available(iOS 13.0, *)
+    @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func request(with request: URLRequest) async throws -> Response<Data>
 
     func request<T: Decodable>(with request: URLRequest, handler: @escaping (Result<T, Error>) -> Void)

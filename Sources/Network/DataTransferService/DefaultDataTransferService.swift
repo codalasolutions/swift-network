@@ -17,12 +17,12 @@ public class DefaultDataTransferService: DataTransferService {
         self.session = session
     }
 
-    @available(iOS 13.0, *)
+    @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     public func request<T: Decodable>(with request: URLRequest) async throws -> T {
         try await self.request(with: request).data
     }
 
-    @available(iOS 13.0, *)
+    @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     public func request<T: Decodable>(with request: URLRequest) async throws -> Response<T> {
         try await withCheckedThrowingContinuation { continuation in
             self.request(with: request) { (result: Result<Response<T>, Error>) in
@@ -36,12 +36,12 @@ public class DefaultDataTransferService: DataTransferService {
         }
     }
 
-    @available(iOS 13.0, *)
+    @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     public func request(with request: URLRequest) async throws -> Data {
         try await self.request(with: request).data
     }
 
-    @available(iOS 13.0, *)
+    @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     public func request(with request: URLRequest) async throws -> Response<Data> {
         try await withCheckedThrowingContinuation { continuation in
             self.request(with: request) { (result: Result<Response<Data>, Error>) in
