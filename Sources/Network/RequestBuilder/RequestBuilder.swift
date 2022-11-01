@@ -22,10 +22,8 @@ public protocol RequestBuilder {
 
     func set(method: MethodType) -> Self
 
-    // json
     func set<T: Encodable>(body: T) -> Self
     func set(body: [String: Any]) -> Self
-    // json or plain
     func set(body: Data) -> Self
 
     func build() -> URLRequest?

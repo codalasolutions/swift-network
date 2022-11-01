@@ -9,11 +9,11 @@ import Foundation
 public class DefaultDataTransferService: DataTransferService {
     private let session: URLSession
 
-    public required convenience init() {
+    public convenience init() {
         self.init(session: .shared)
     }
 
-    public required init(session: URLSession) {
+    public init(session: URLSession) {
         self.session = session
     }
 

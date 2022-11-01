@@ -9,9 +9,6 @@ import Foundation
 public protocol DataTransferService {
     typealias Response<T> = (response: HTTPURLResponse, data: T)
 
-    init()
-    init(session: URLSession)
-
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func request<T: Decodable>(with request: URLRequest) async throws -> T
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
