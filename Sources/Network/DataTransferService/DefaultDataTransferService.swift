@@ -18,7 +18,7 @@ public class DefaultDataTransferService: DataTransferService {
     }
 
     public func request<T: Decodable>(with request: URLRequest) async throws -> T {
-        let (data, response) = try await session.data(for: request)
+        /*let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse,
               (200 ..< 300).contains(httpResponse.statusCode)
@@ -26,10 +26,11 @@ public class DefaultDataTransferService: DataTransferService {
 
         let responseData = try JSONDecoder().decode(T.self, from: data)
 
-        return responseData
+        return responseData*/
+        throw DataTransferError.unknown
     }
 
     public func request(with request: URLRequest) async throws -> Data {
-        return try await session.data(for: request).0
+        return .init() // try await session.data(for: request).0
     }
 }
