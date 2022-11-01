@@ -5,5 +5,9 @@
 //
 
 public enum DataTransferError: Error {
-    case unknown
+    case data
+    case response
+    case status(code: Int)
+    case error(error: Error)
+    case parse(error: Error)
 }
