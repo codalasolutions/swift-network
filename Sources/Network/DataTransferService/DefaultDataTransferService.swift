@@ -7,7 +7,7 @@
 import Foundation
 
 public class DefaultDataTransferService: DataTransferService {
-    public var session: URLSession
+    private(set) var session: URLSession
 
     public convenience init() {
         self.init(session: .shared)

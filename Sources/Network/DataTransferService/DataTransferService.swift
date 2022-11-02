@@ -7,7 +7,6 @@
 import Foundation
 
 public protocol DataTransferService {
-    var session: URLSession { get set }
     typealias Response<T> = (response: HTTPURLResponse, data: T)
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)

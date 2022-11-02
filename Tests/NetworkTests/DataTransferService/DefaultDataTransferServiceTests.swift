@@ -38,7 +38,7 @@ final class DefaultDataTransferServiceTests: XCTestCase {
     }
 
     func testDefaultInit() {
-        let stub: DataTransferService = DefaultDataTransferService()
+        let stub = DefaultDataTransferService()
         XCTAssertEqual(stub.session, URLSession.shared)
     }
 
