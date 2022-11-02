@@ -8,8 +8,12 @@ import Foundation
 import XCTest
 
 final class URLProtocolStub: URLProtocol {
-    typealias Handler = (URLRequest) -> (HTTPURLResponse?, Data?, Error?)
-    static var handler: Handler?
+    struct Stub {
+        let response: URLResponse?
+        let data: Data?
+        let error: Error?
+    }
+    static var stub: Stub?
 
     override class func canInit(with request: URLRequest) -> Bool {
         true
@@ -28,19 +32,18 @@ final class URLProtocolStub: URLProtocol {
     }
 
     private func respond() {
-        guard let handler = Self.handler else {
-            XCTFail("Received unexpected request with no handler set")
+        guard let stub = Self.stub else {
+            XCTFail("Received unexpected request with no stub set")
             return
         }
-        let (response, data, error) = handler(request)
-        if let response = response {
+        if let response = stub.response {
             client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         }
-        if let data = data {
+        if let data = stub.data {
             client?.urlProtocol(self, didLoad: data)
             client?.urlProtocolDidFinishLoading(self)
         }
-        if let error = error {
+        if let error = stub.error {
             client?.urlProtocol(self, didFailWithError: error)
         }
     }

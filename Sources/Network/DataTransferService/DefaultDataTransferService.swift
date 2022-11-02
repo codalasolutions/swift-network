@@ -7,7 +7,7 @@
 import Foundation
 
 public class DefaultDataTransferService: DataTransferService {
-    private let session: URLSession
+    public var session: URLSession
 
     public convenience init() {
         self.init(session: .shared)
@@ -16,7 +16,7 @@ public class DefaultDataTransferService: DataTransferService {
     public init(session: URLSession) {
         self.session = session
     }
-
+ 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     public func request<T: Decodable>(with request: URLRequest) async throws -> T {
         try await self.request(with: request).data
