@@ -20,10 +20,11 @@ final class DefaultRequestBuilderTests: XCTestCase {
         sut = nil
     }
 
-    func testSchemeHostPathParams() {
+    func testSchemeHostPortPathParams() {
         let request = sut
             .set(scheme: "https")
             .set(host: "www.example.com")
+            .set(port: 8080)
             .set(path: "/some/path")
             .set(query: ["key1": "val1", "key2": "val2"])
             .set(method: .get)
@@ -31,7 +32,7 @@ final class DefaultRequestBuilderTests: XCTestCase {
 
         XCTAssertEqual(request?.httpMethod, "GET")
 
-        let extectation = "https://www.example.com/some/path?"
+        let extectation = "https://www.example.com:8080/some/path?"
         let extectation1 = extectation + "key1=val1&key2=val2"
         let extectation2 = extectation + "key2=val2&key1=val1"
         let actual = request?.url?.absoluteString

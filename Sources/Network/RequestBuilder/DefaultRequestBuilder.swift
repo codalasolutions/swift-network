@@ -30,6 +30,11 @@ public class DefaultRequestBuilder: RequestBuilder {
         return self
     }
 
+    public func set(port: Int) -> Self {
+        components.port = port
+        return self
+    }
+
     public func set(path: String) -> Self {
         components.path = path
         return self
