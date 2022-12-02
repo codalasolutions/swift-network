@@ -27,5 +27,6 @@ public protocol RequestBuilder {
     func set(body: [String: Any]) -> Self
     func set(body: Data) -> Self
 
+    func build() throws -> URLRequest
     func build() -> URLRequest?
 }

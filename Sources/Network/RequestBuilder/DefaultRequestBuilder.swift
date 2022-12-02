@@ -82,6 +82,13 @@ public class DefaultRequestBuilder: RequestBuilder {
         return self
     }
 
+    public func build() throws -> URLRequest {
+        if let request = build() {
+            return request
+        }
+        throw RequestBuilderError.invalid
+    }
+
     public func build() -> URLRequest? {
         if let url = components.url {
             request.url = url

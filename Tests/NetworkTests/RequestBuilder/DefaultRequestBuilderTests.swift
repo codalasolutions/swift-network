@@ -20,8 +20,8 @@ final class DefaultRequestBuilderTests: XCTestCase {
         sut = nil
     }
 
-    func testSchemeHostPortPathParams() {
-        let request = sut
+    func testSchemeHostPortPathParams() throws {
+        let request: URLRequest = try sut
             .set(scheme: "https")
             .set(host: "www.example.com")
             .set(port: 8080)
@@ -30,35 +30,35 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(method: .get)
             .build()
 
-        XCTAssertEqual(request?.httpMethod, "GET")
+        XCTAssertEqual(request.httpMethod, "GET")
 
         let extectation = "https://www.example.com:8080/some/path?"
         let extectation1 = extectation + "key1=val1&key2=val2"
         let extectation2 = extectation + "key2=val2&key1=val1"
-        let actual = request?.url?.absoluteString
+        let actual = request.url?.absoluteString
 
         XCTAssertTrue(actual == extectation1 || actual == extectation2)
     }
 
-    func testHeaders() {
-        let request = sut
+    func testHeaders() throws {
+        let request: URLRequest = try sut
             .set(headers: ["Key1": "Val1", "Key2": "Val2"])
             .set(method: .put)
             .set(host: "www.something.org")
             .set(scheme: "http")
             .build()
 
-        XCTAssertEqual(request?.httpMethod, "PUT")
-        XCTAssertEqual(request?.allHTTPHeaderFields?["Key1"], "Val1")
-        XCTAssertEqual(request?.allHTTPHeaderFields?["Key2"], "Val2")
+        XCTAssertEqual(request.httpMethod, "PUT")
+        XCTAssertEqual(request.allHTTPHeaderFields?["Key1"], "Val1")
+        XCTAssertEqual(request.allHTTPHeaderFields?["Key2"], "Val2")
     }
 
-    func testBodyEncodableContentTypeJson() {
+    func testBodyEncodableContentTypeJson() throws {
         struct Body: Codable {
             let key: String
         }
 
-        let request = sut
+        let request: URLRequest = try sut
             .set(method: .post)
             .set(contentType: .json)
             .set(scheme: "https")
@@ -66,16 +66,16 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(body: Body(key: "val"))
             .build()
 
-        XCTAssertEqual(request?.httpMethod, "POST")
-        XCTAssertEqual(request?.allHTTPHeaderFields?["Content-Type"], "application/json")
+        XCTAssertEqual(request.httpMethod, "POST")
+        XCTAssertEqual(request.allHTTPHeaderFields?["Content-Type"], "application/json")
 
         let extectation = "{\"key\":\"val\"}"
-        let actual = String(decoding: request?.httpBody ?? .init(), as: UTF8.self)
+        let actual = String(decoding: request.httpBody ?? .init(), as: UTF8.self)
         XCTAssertEqual(actual, extectation)
     }
 
-    func testBodyDictionary() {
-        let request = sut
+    func testBodyDictionary() throws {
+        let request: URLRequest = try sut
             .set(contentType: .json)
             .set(body: [
                 "key1": "val1",
@@ -86,17 +86,17 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(method: .patch)
             .build()
 
-        XCTAssertEqual(request?.httpMethod, "PATCH")
+        XCTAssertEqual(request.httpMethod, "PATCH")
 
         let extectation1 = "{\"key1\":\"val1\",\"key2\":[\"val\",\"val\"]}"
         let extectation2 = "{\"key2\":[\"val\",\"val\"],\"key1\":\"val1\"}"
-        let actual = String(decoding: request?.httpBody ?? .init(), as: UTF8.self)
+        let actual = String(decoding: request.httpBody ?? .init(), as: UTF8.self)
 
         XCTAssertTrue(actual == extectation1 || actual == extectation2)
     }
 
-    func testBodyDataContentTypePlain() {
-        let request = sut
+    func testBodyDataContentTypePlain() throws {
+        let request: URLRequest = try sut
             .set(body: Data("Some Data".utf8))
             .set(host: "www.some.company.name.com")
             .set(method: .delete)
@@ -104,15 +104,15 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(contentType: .plain)
             .build()
 
-        XCTAssertEqual(request?.httpMethod, "DELETE")
-        XCTAssertEqual(request?.allHTTPHeaderFields?["Content-Type"], "text/plain")
+        XCTAssertEqual(request.httpMethod, "DELETE")
+        XCTAssertEqual(request.allHTTPHeaderFields?["Content-Type"], "text/plain")
 
-        let actual = String(decoding: request?.httpBody ?? .init(), as: UTF8.self)
+        let actual = String(decoding: request.httpBody ?? .init(), as: UTF8.self)
         XCTAssertEqual(actual, "Some Data")
     }
 
-    func testFullFunctionality() {
-        let request = sut
+    func testFullFunctionality() throws {
+        let request: URLRequest = try sut
             .set(method: .put)
             .set(contentType: .json)
             .set(scheme: "http")
@@ -123,19 +123,19 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(body: ["key": "val"])
             .build()
 
-        XCTAssertEqual(request?.url?.absoluteString, "http://www.full.functionality.com/some/random/path?key=val")
-        XCTAssertEqual(request?.httpMethod, "PUT")
-        XCTAssertEqual(request?.allHTTPHeaderFields?["Content-Type"], "application/json")
-        XCTAssertEqual(request?.allHTTPHeaderFields?["key"], "val")
-        XCTAssertEqual(String(decoding: request?.httpBody ?? .init(), as: UTF8.self), "{\"key\":\"val\"}")
+        XCTAssertEqual(request.url?.absoluteString, "http://www.full.functionality.com/some/random/path?key=val")
+        XCTAssertEqual(request.httpMethod, "PUT")
+        XCTAssertEqual(request.allHTTPHeaderFields?["Content-Type"], "application/json")
+        XCTAssertEqual(request.allHTTPHeaderFields?["key"], "val")
+        XCTAssertEqual(String(decoding: request.httpBody ?? .init(), as: UTF8.self), "{\"key\":\"val\"}")
     }
 
-    func testReset() {
-        let defaultRequest = sut.build()
+    func testReset() throws {
+        let defaultRequest: URLRequest = try sut.build()
 
         XCTAssertNotNil(defaultRequest)
 
-        let _ = sut
+        let _: URLRequest = try sut
             .set(headers: ["key": "val"])
             .set(contentType: .json)
             .set(body: ["key": "val"])
@@ -146,7 +146,7 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(method: .put)
             .build()
 
-        let requestAfterReset = sut
+        let requestAfterReset: URLRequest = try sut
             .reset()
             .build()
 
@@ -156,12 +156,11 @@ final class DefaultRequestBuilderTests: XCTestCase {
     func testBuildFail() {
         XCTAssertNotNil(sut.build())
 
-        let request = sut
+        let builder = sut
             .reset()
             .set(path: "//some/broken/path")
             .set(scheme: "https")
-            .build()
 
-        XCTAssertNil(request)
+        XCTAssertThrowsError(try builder.build())
     }
 }
