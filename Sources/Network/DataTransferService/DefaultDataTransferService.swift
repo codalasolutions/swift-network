@@ -7,14 +7,12 @@
 import Foundation
 
 public class DefaultDataTransferService: DataTransferService {
-    private(set) var session: URLSession
+    public var session: URLSession
+    public var decoder: JSONDecoder
 
-    public convenience init() {
-        self.init(session: .shared)
-    }
-
-    public init(session: URLSession) {
+    public init(session: URLSession = .shared, decoder: JSONDecoder = .init()) {
         self.session = session
+        self.decoder = decoder
     }
  
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
@@ -67,11 +65,12 @@ public class DefaultDataTransferService: DataTransferService {
     }
 
     public func request<T: Decodable>(with request: URLRequest, handler: @escaping (Result<Response<T>, Error>) -> Void) {
+        let decoder = self.decoder
         self.request(with: request) { (result: Result<Response<Data>, Error>) in
             switch result {
             case .success(let response):
                 do {
-                    let data = try JSONDecoder().decode(T.self, from: response.data)
+                    let data = try decoder.decode(T.self, from: response.data)
                     handler(.success((response: response.response, data: data)))
                 } catch {
                     handler(.failure(DataTransferError.parse(error: error)))
