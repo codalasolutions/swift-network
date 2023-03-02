@@ -40,6 +40,11 @@ public class DefaultRequestBuilder: RequestBuilder {
         return self
     }
 
+    public func append(path: String) -> Self {
+        components.path.append(path)
+        return self
+    }
+
     public func set(query: [String: String]) -> Self {
         components.queryItems = []
         query.forEach {

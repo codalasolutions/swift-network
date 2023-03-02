@@ -15,6 +15,7 @@ public protocol RequestBuilder {
     func set(host: String) -> Self
     func set(port: Int) -> Self
     func set(path: String) -> Self
+    func append(path: String) -> Self
 
     func set(query: [String: String]) -> Self
 
