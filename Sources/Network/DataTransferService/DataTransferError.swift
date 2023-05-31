@@ -15,14 +15,16 @@ public enum DataTransferError: Error {
 }
 
 extension DataTransferError: LocalizedError {
-    private var separator: String { "$" }
+    var prefix: String { "DataTransferError" }
+    var separator: String { "$" }
+
     public var errorDescription: String? {
         switch self {
-        case .data:             return "DataTransferError\(separator)data"
-        case .response:         return "DataTransferError\(separator)response"
-        case .status(let code): return "DataTransferError\(separator)status\(separator)\(code)"
-        case .error(let error): return "DataTransferError\(separator)error\(separator)\(error.localizedDescription)"
-        case .parse(let error): return "DataTransferError\(separator)parse\(separator)\(error.localizedDescription)"
+        case .data:             return "\(prefix)\(separator)data"
+        case .response:         return "\(prefix)\(separator)response"
+        case .status(let code): return "\(prefix)\(separator)status\(separator)\(code)"
+        case .error(let error): return "\(prefix)\(separator)error\(separator)\(error.localizedDescription)"
+        case .parse(let error): return "\(prefix)\(separator)parse\(separator)\(error.localizedDescription)"
         }
     }
 }
