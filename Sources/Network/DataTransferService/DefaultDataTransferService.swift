@@ -101,7 +101,7 @@ public class DefaultDataTransferService: DataTransferService {
                 return handler(.failure(DataTransferError.response))
             }
             guard (200 ..< 300).contains(response.statusCode) else {
-                return handler(.failure(DataTransferError.status(code: response.statusCode)))
+                return handler(.failure(DataTransferError.status(code: response.statusCode, data: data)))
             }
             if let data = data {
                 handler(.success((response: response, data: data)))

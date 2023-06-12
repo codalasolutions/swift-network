@@ -9,7 +9,7 @@ import Foundation
 public enum DataTransferError: Error {
     case data
     case response
-    case status(code: Int)
+    case status(code: Int, data: Data? = nil)
     case error(error: Error)
     case parse(error: Error)
 }
@@ -20,11 +20,20 @@ extension DataTransferError: LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .data:             return "\(prefix)\(separator)data"
-        case .response:         return "\(prefix)\(separator)response"
-        case .status(let code): return "\(prefix)\(separator)status\(separator)\(code)"
-        case .error(let error): return "\(prefix)\(separator)error\(separator)\(error.localizedDescription)"
-        case .parse(let error): return "\(prefix)\(separator)parse\(separator)\(error.localizedDescription)"
+        case .data:
+            return "\(prefix)\(separator)data"
+        case .response:
+            return "\(prefix)\(separator)response"
+        case .status(let code, let data):
+            var error = "\(prefix)\(separator)status\(separator)\(code)"
+            if let data {
+                error.append("\(separator)\(data.base64EncodedString())")
+            }
+            return error
+        case .error(let error):
+            return "\(prefix)\(separator)error\(separator)\(error.localizedDescription)"
+        case .parse(let error):
+            return "\(prefix)\(separator)parse\(separator)\(error.localizedDescription)"
         }
     }
 }
