@@ -14,7 +14,7 @@ open class DefaultDataTransferService: DataTransferService {
         self.session = session
         self.decoder = decoder
     }
- 
+
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     open func request<T: Decodable>(with request: URLRequest) async throws -> T {
         try await self.request(with: request).data
@@ -64,6 +64,17 @@ open class DefaultDataTransferService: DataTransferService {
         }
     }
 
+    open func request(with request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void) {
+        self.request(with: request) { (result: Result<Response<Data>, Error>) in
+            switch result {
+            case .success(let response):
+                handler(.success(response.data))
+            case .failure(let error):
+                handler(.failure(error))
+            }
+        }
+    }
+
     open func request<T: Decodable>(with request: URLRequest, handler: @escaping (Result<Response<T>, Error>) -> Void) {
         let decoder = self.decoder
         self.request(with: request) { (result: Result<Response<Data>, Error>) in
@@ -81,21 +92,13 @@ open class DefaultDataTransferService: DataTransferService {
         }
     }
 
-    open func request(with request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void) {
-        self.request(with: request) { (result: Result<Response<Data>, Error>) in
-            switch result {
-            case .success(let response):
-                handler(.success(response.data))
-            case .failure(let error):
-                handler(.failure(error))
-            }
-        }
-    }
-
     open func request(with request: URLRequest, handler: @escaping (Result<Response<Data>, Error>) -> Void) {
         session.dataTask(with: request) { data, response, error in
-            if let error = error {
+            if let error {
                 return handler(.failure(DataTransferError.error(error: error)))
+            }
+            guard let data else {
+                return handler(.failure(DataTransferError.data))
             }
             guard let response = response as? HTTPURLResponse else {
                 return handler(.failure(DataTransferError.response))
@@ -103,11 +106,7 @@ open class DefaultDataTransferService: DataTransferService {
             guard (200 ..< 300).contains(response.statusCode) else {
                 return handler(.failure(DataTransferError.status(code: response.statusCode, data: data)))
             }
-            if let data = data {
-                handler(.success((response: response, data: data)))
-            } else {
-                handler(.failure(DataTransferError.data))
-            }
+            handler(.success((response: response, data: data)))
         }.resume()
     }
 }

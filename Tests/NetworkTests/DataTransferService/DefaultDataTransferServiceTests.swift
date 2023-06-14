@@ -54,7 +54,7 @@ final class DefaultDataTransferServiceTests: XCTestCase {
     }
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    func testAsyncJsonFail() async {
+    func testAsyncJsonFailError() async {
         stub = .init(response: nil, data: nil, error: ErrorDummy())
         do {
             let _: DecodableStub = try await sut.request(with: dummy)
@@ -79,7 +79,7 @@ final class DefaultDataTransferServiceTests: XCTestCase {
     }
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    func testAsyncDataFail() async {
+    func testAsyncDataFailResponse() async {
         stub = .init(response: URLResponse(), data: .init(), error: nil)
         do {
             let _: Data = try await sut.request(with: dummy)
@@ -110,7 +110,7 @@ final class DefaultDataTransferServiceTests: XCTestCase {
         wait(for: [ex], timeout: 0.1)
     }
 
-    func testJsonFail() {
+    func testJsonFailParse() {
         stub = .init(response: HTTPURLResponse(),
                      data: .init("Broken json data".utf8),
                      error: nil)
@@ -145,10 +145,10 @@ final class DefaultDataTransferServiceTests: XCTestCase {
         wait(for: [ex], timeout: 0.1)
     }
 
-    func testDataFail() {
+    func testDataFailStatus() {
         let data = Data("{\"key\":\"value\"}".utf8)
         stub = .init(response: HTTPURLResponse(url: URLComponents().url!,
-                                               statusCode: 401,
+                                               statusCode: 404,
                                                httpVersion: nil,
                                                headerFields: nil),
                      data: data,
@@ -159,7 +159,7 @@ final class DefaultDataTransferServiceTests: XCTestCase {
         sut.request(with: dummy) { (result: Result<Data, Error>) in
             if case .failure(let error) = result,
                case .status(let code, let response) = error as? DataTransferError,
-               code == 401, response == data {
+               code == 404, response == data {
                 ex.fulfill()
             }
         }
