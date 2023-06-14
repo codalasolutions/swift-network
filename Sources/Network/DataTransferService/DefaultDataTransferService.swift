@@ -6,7 +6,7 @@
 
 import Foundation
 
-public class DefaultDataTransferService: DataTransferService {
+open class DefaultDataTransferService: DataTransferService {
     public var session: URLSession
     public var decoder: JSONDecoder
 
@@ -16,12 +16,12 @@ public class DefaultDataTransferService: DataTransferService {
     }
  
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    public func request<T: Decodable>(with request: URLRequest) async throws -> T {
+    open func request<T: Decodable>(with request: URLRequest) async throws -> T {
         try await self.request(with: request).data
     }
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    public func request<T: Decodable>(with request: URLRequest) async throws -> Response<T> {
+    open func request<T: Decodable>(with request: URLRequest) async throws -> Response<T> {
         try await withCheckedThrowingContinuation { continuation in
             self.request(with: request) { (result: Result<Response<T>, Error>) in
                 switch result {
@@ -35,12 +35,12 @@ public class DefaultDataTransferService: DataTransferService {
     }
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    public func request(with request: URLRequest) async throws -> Data {
+    open func request(with request: URLRequest) async throws -> Data {
         try await self.request(with: request).data
     }
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    public func request(with request: URLRequest) async throws -> Response<Data> {
+    open func request(with request: URLRequest) async throws -> Response<Data> {
         try await withCheckedThrowingContinuation { continuation in
             self.request(with: request) { (result: Result<Response<Data>, Error>) in
                 switch result {
@@ -53,7 +53,7 @@ public class DefaultDataTransferService: DataTransferService {
         }
     }
 
-    public func request<T: Decodable>(with request: URLRequest, handler: @escaping (Result<T, Error>) -> Void) {
+    open func request<T: Decodable>(with request: URLRequest, handler: @escaping (Result<T, Error>) -> Void) {
         self.request(with: request) { (result: Result<Response<T>, Error>) in
             switch result {
             case .success(let response):
@@ -64,7 +64,7 @@ public class DefaultDataTransferService: DataTransferService {
         }
     }
 
-    public func request<T: Decodable>(with request: URLRequest, handler: @escaping (Result<Response<T>, Error>) -> Void) {
+    open func request<T: Decodable>(with request: URLRequest, handler: @escaping (Result<Response<T>, Error>) -> Void) {
         let decoder = self.decoder
         self.request(with: request) { (result: Result<Response<Data>, Error>) in
             switch result {
@@ -81,7 +81,7 @@ public class DefaultDataTransferService: DataTransferService {
         }
     }
 
-    public func request(with request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void) {
+    open func request(with request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void) {
         self.request(with: request) { (result: Result<Response<Data>, Error>) in
             switch result {
             case .success(let response):
@@ -92,7 +92,7 @@ public class DefaultDataTransferService: DataTransferService {
         }
     }
 
-    public func request(with request: URLRequest, handler: @escaping (Result<Response<Data>, Error>) -> Void) {
+    open func request(with request: URLRequest, handler: @escaping (Result<Response<Data>, Error>) -> Void) {
         session.dataTask(with: request) { data, response, error in
             if let error = error {
                 return handler(.failure(DataTransferError.error(error: error)))
