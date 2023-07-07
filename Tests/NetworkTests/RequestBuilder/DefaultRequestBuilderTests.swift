@@ -27,18 +27,17 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(port: 8080)
             .set(path: "/some")
             .append(path: "/path")
-            .set(query: ["key1": "val1", "key2": "val2"])
+            .set(query: [("key1", "val1")])
+            .append(query: ("key2", "val2"))
             .set(method: .get)
             .build()
 
         XCTAssertEqual(request.httpMethod, "GET")
 
-        let extectation = "https://www.example.com:8080/some/path?"
-        let extectation1 = extectation + "key1=val1&key2=val2"
-        let extectation2 = extectation + "key2=val2&key1=val1"
+        let extectation = "https://www.example.com:8080/some/path?key1=val1&key2=val2"
         let actual = request.url?.absoluteString
 
-        XCTAssertTrue(actual == extectation1 || actual == extectation2)
+        XCTAssertTrue(actual == extectation)
     }
 
     func testHeaders() throws {
@@ -121,7 +120,7 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(path: "/some")
             .append(path: "/random")
             .append(path: "/path")
-            .set(query: ["key": "val"])
+            .append(query: ("key", "val"))
             .set(headers: ["key": "val"])
             .set(body: ["key": "val"])
             .build()
@@ -142,7 +141,7 @@ final class DefaultRequestBuilderTests: XCTestCase {
             .set(headers: ["key": "val"])
             .set(contentType: .json)
             .set(body: ["key": "val"])
-            .set(query: ["key": "val"])
+            .set(query: [("key", "val")])
             .set(path: "/some/path")
             .set(host: "www.reset.com")
             .set(scheme: "http")

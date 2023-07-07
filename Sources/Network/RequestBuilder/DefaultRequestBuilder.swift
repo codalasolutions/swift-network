@@ -45,11 +45,19 @@ public class DefaultRequestBuilder: RequestBuilder {
         return self
     }
 
-    public func set(query: [String: String]) -> Self {
+    public func set(query: [(String, String)]) -> Self {
         components.queryItems = []
         query.forEach {
             components.queryItems?.append(.init(name: $0, value: $1))
         }
+        return self
+    }
+
+    public func append(query: (String, String)) -> Self {
+        if components.queryItems == nil {
+            components.queryItems = []
+        }
+        components.queryItems?.append(.init(name: query.0, value: query.1))
         return self
     }
 

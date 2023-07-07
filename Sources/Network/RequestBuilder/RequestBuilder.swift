@@ -17,7 +17,8 @@ public protocol RequestBuilder {
     func set(path: String) -> Self
     func append(path: String) -> Self
 
-    func set(query: [String: String]) -> Self
+    func set(query: [(String, String)]) -> Self
+    func append(query: (String, String)) -> Self
 
     func set(contentType: ContentType) -> Self
     func set(headers: [String: String]) -> Self
