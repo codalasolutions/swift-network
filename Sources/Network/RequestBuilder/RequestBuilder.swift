@@ -7,8 +7,6 @@
 import Foundation
 
 public protocol RequestBuilder {
-    init()
-
     func reset() -> Self
 
     func set(scheme: String) -> Self
@@ -25,8 +23,7 @@ public protocol RequestBuilder {
 
     func set(method: MethodType) -> Self
 
-    func set<T: Encodable>(body: T) -> Self
-    func set(body: [String: Any]) -> Self
+    func set<T: Encodable>(body: T) throws -> Self
     func set(body: Data) -> Self
 
     func build() throws -> URLRequest

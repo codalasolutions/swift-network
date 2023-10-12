@@ -7,12 +7,15 @@
 import Foundation
 
 public class DefaultRequestBuilder: RequestBuilder {
+    private let encoder: JSONEncoder
     private lazy var components = defaultComponents
     private lazy var request = defaultRequest
     private var defaultComponents: URLComponents { .init() }
     private var defaultRequest: URLRequest { .init(url: defaultComponents.url!) }
 
-    public required init() {}
+    public init(encoder: JSONEncoder = .init()) {
+        self.encoder = encoder
+    }
 
     public func reset() -> Self {
         components = defaultComponents
@@ -78,14 +81,8 @@ public class DefaultRequestBuilder: RequestBuilder {
         return self
     }
 
-    public func set<T: Encodable>(body: T) -> Self {
-        let body = try? JSONEncoder().encode(body)
-        request.httpBody = body
-        return self
-    }
-
-    public func set(body: [String: Any]) -> Self {
-        let body = try? JSONSerialization.data(withJSONObject: body)
+    public func set<T: Encodable>(body: T) throws -> Self {
+        let body = try encoder.encode(body)
         request.httpBody = body
         return self
     }

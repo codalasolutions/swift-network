@@ -74,13 +74,15 @@ final class DefaultRequestBuilderTests: XCTestCase {
         XCTAssertEqual(actual, extectation)
     }
 
-    func testBodyDictionary() throws {
+    func testBodyWithArray() throws {
+        struct Body: Encodable {
+            let key1 = "val1"
+            let key2 = ["val", "val"]
+        }
+
         let request: URLRequest = try sut
             .set(contentType: .json)
-            .set(body: [
-                "key1": "val1",
-                "key2": ["val", "val"]
-            ])
+            .set(body: Body())
             .set(scheme: "http")
             .set(host: "www.whatever.ge")
             .set(method: .patch)
