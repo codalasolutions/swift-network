@@ -9,10 +9,14 @@ import Foundation
 open class DefaultDataTransferService: DataTransferService {
     public var session: URLSession
     public var decoder: JSONDecoder
+    public var success: Range<Int>
 
-    public init(session: URLSession = .shared, decoder: JSONDecoder = .init()) {
+    public init(session: URLSession = .shared,
+                decoder: JSONDecoder = .init(),
+                success: Range<Int> = (200 ..< 300)) {
         self.session = session
         self.decoder = decoder
+        self.success = success
     }
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
@@ -93,6 +97,7 @@ open class DefaultDataTransferService: DataTransferService {
     }
 
     open func request(with request: URLRequest, handler: @escaping (Result<Response<Data>, Error>) -> Void) {
+        let success = success
         session.dataTask(with: request) { data, response, error in
             if let error {
                 return handler(.failure(DataTransferError.error(error: error)))
@@ -103,10 +108,14 @@ open class DefaultDataTransferService: DataTransferService {
             guard let response = response as? HTTPURLResponse else {
                 return handler(.failure(DataTransferError.response))
             }
-            guard (200 ..< 300).contains(response.statusCode) else {
+            guard success.contains(response.statusCode) else {
                 return handler(.failure(DataTransferError.status(code: response.statusCode, data: data)))
             }
             handler(.success((response: response, data: data)))
         }.resume()
+    }
+
+    open func set(success: Range<Int>) {
+        self.success = success
     }
 }

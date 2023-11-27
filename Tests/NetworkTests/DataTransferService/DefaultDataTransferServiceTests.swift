@@ -166,4 +166,26 @@ final class DefaultDataTransferServiceTests: XCTestCase {
 
         wait(for: [ex], timeout: 0.1)
     }
+
+    @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
+    func testSetSuccess() async {
+        let data = Data("Some random data...".utf8)
+        stub = .init(response: HTTPURLResponse(),
+                     data: data,
+                     error: nil)
+
+        sut.set(success: 204..<205)
+
+        do {
+            let _ = try await sut.request(with: dummy) as Foundation.Data
+            XCTFail()
+        } catch {
+            guard case .status(let code, _) = error as? DataTransferError,
+                  code == 200
+            else {
+                XCTFail()
+                return
+            }
+        }
+    }
 }

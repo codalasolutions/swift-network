@@ -24,4 +24,6 @@ public protocol DataTransferService {
 
     func request(with request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void)
     func request(with request: URLRequest, handler: @escaping (Result<Response<Data>, Error>) -> Void)
+
+    func set(success: Range<Int>)
 }
