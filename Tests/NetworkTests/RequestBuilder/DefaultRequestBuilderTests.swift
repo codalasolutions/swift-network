@@ -113,7 +113,7 @@ final class DefaultRequestBuilderTests: XCTestCase {
         XCTAssertEqual(actual, "Some Data")
     }
 
-    func testBodyDataContentTypUrlencoded() throws {
+    func testBodyDataContentTypeUrlencoded() throws {
         let request: URLRequest = try sut
             .set(scheme: "https")
             .set(host: "www.example.com")
