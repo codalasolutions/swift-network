@@ -119,12 +119,3 @@ public class DefaultRequestBuilder: RequestBuilder {
         return nil
     }
 }
-
-fileprivate extension URLComponents {
-    mutating func set(query: [(String, String)]) {
-        queryItems = .init()
-        query.forEach {
-            queryItems?.append(.init(name: $0, value: $1))
-        }
-    }
-}
