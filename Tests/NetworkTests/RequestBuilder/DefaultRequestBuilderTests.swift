@@ -113,6 +113,24 @@ final class DefaultRequestBuilderTests: XCTestCase {
         XCTAssertEqual(actual, "Some Data")
     }
 
+    func testBodyDataContentTypUrlencoded() throws {
+        let request: URLRequest = try sut
+            .set(scheme: "https")
+            .set(host: "www.example.com")
+            .set(method: .post)
+            .set(contentType: .urlencoded)
+            .set(body: [("key1", "val1"), ("key2", "val2")])
+            .build()
+
+        XCTAssertEqual(request.httpMethod, "POST")
+
+        let extectation1 = "key1=val1&key2=val2"
+        let extectation2 = "key2=val2&key1=val1"
+        let actual = String(decoding: request.httpBody ?? .init(), as: UTF8.self)
+
+        XCTAssertTrue(actual == extectation1 || actual == extectation2)
+    }
+
     func testFullFunctionality() throws {
         let request: URLRequest = try sut
             .set(method: .put)

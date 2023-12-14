@@ -24,6 +24,7 @@ public protocol RequestBuilder {
     func set(method: MethodType) -> Self
 
     func set<T: Encodable>(body: T) throws -> Self
+    func set(body: [(String, String)]) throws -> Self
     func set(body: Data) -> Self
 
     func build() throws -> URLRequest

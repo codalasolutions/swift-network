@@ -49,7 +49,7 @@ public class DefaultRequestBuilder: RequestBuilder {
     }
 
     public func set(query: [(String, String)]) -> Self {
-        components.queryItems = []
+        components.queryItems = .init()
         query.forEach {
             components.queryItems?.append(.init(name: $0, value: $1))
         }
@@ -58,7 +58,7 @@ public class DefaultRequestBuilder: RequestBuilder {
 
     public func append(query: (String, String)) -> Self {
         if components.queryItems == nil {
-            components.queryItems = []
+            components.queryItems = .init()
         }
         components.queryItems?.append(.init(name: query.0, value: query.1))
         return self
@@ -87,6 +87,18 @@ public class DefaultRequestBuilder: RequestBuilder {
         return self
     }
 
+    public func set(body: [(String, String)]) throws -> Self {
+        var components = defaultComponents
+        components.queryItems = .init()
+        body.forEach {
+            components.queryItems?.append(.init(name: $0, value: $1))
+        }
+        if let body = components.query?.data(using: .utf8) {
+            return set(body: body)
+        }
+        throw RequestBuilderError.invalid
+    }
+
     public func set(body: Data) -> Self {
         request.httpBody = body
         return self
@@ -105,5 +117,14 @@ public class DefaultRequestBuilder: RequestBuilder {
             return request
         }
         return nil
+    }
+}
+
+fileprivate extension URLComponents {
+    mutating func set(query: [(String, String)]) {
+        queryItems = .init()
+        query.forEach {
+            queryItems?.append(.init(name: $0, value: $1))
+        }
     }
 }
