@@ -146,20 +146,20 @@ final class DefaultDataTransferServiceTests: XCTestCase {
     }
 
     func testDataFailStatus() {
-        let data = Data("{\"key\":\"value\"}".utf8)
+        let _data = Data("{\"key\":\"value\"}".utf8)
         stub = .init(response: HTTPURLResponse(url: URLComponents().url!,
                                                statusCode: 404,
                                                httpVersion: nil,
                                                headerFields: nil),
-                     data: data,
+                     data: _data,
                      error: nil)
 
         let ex = expectation(description: "")
 
         sut.request(with: dummy) { (result: Result<Data, Error>) in
             if case .failure(let error) = result,
-               case .status(let code, let response) = error as? DataTransferError,
-               code == 404, response == data {
+               case .status(let response, let data) = error as? DataTransferError,
+               response.statusCode == 404, data == _data {
                 ex.fulfill()
             }
         }
