@@ -5,7 +5,7 @@
 //
 
 import XCTest
-@testable import Network
+@testable import CSNetwork
 
 final class MethodTypeTests: XCTestCase {
     func testGet() {
