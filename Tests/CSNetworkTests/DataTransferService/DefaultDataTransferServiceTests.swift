@@ -5,7 +5,7 @@
 //
 
 import XCTest
-@testable import Network
+@testable import CSNetwork
 
 final class DefaultDataTransferServiceTests: XCTestCase {
     fileprivate struct DecodableStub: Decodable {

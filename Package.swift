@@ -3,19 +3,19 @@
 import PackageDescription
 
 let package = Package(
-    name: "Network",
+    name: "CSNetwork",
     products: [
         .library(
-            name: "Network",
-            targets: ["Network"]),
+            name: "CSNetwork",
+            targets: ["CSNetwork"]),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "Network",
+            name: "CSNetwork",
             dependencies: []),
         .testTarget(
-            name: "NetworkTests",
-            dependencies: ["Network"]),
+            name: "CSNetworkTests",
+            dependencies: ["CSNetwork"]),
     ]
 )

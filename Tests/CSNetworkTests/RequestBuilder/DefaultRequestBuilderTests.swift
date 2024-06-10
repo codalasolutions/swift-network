@@ -5,7 +5,7 @@
 //
 
 import XCTest
-@testable import Network
+@testable import CSNetwork
 
 final class DefaultRequestBuilderTests: XCTestCase {
     private var sut: RequestBuilder!
