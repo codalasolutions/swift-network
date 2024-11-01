@@ -1,4 +1,4 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 6.0
 
 import PackageDescription
 
@@ -13,9 +13,11 @@ let package = Package(
     targets: [
         .target(
             name: "CSNetwork",
-            dependencies: []),
+            dependencies: [],
+            swiftSettings: [.swiftLanguageMode(.v6)]),
         .testTarget(
             name: "CSNetworkTests",
-            dependencies: ["CSNetwork"]),
+            dependencies: ["CSNetwork"],
+            swiftSettings: [.swiftLanguageMode(.v6)]),
     ]
 )

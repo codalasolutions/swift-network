@@ -13,7 +13,7 @@ final class URLProtocolStub: URLProtocol {
         let data: Data?
         let error: Error?
     }
-    static var stub: Stub?
+    nonisolated(unsafe) static var stub: Stub?
 
     override class func canInit(with request: URLRequest) -> Bool {
         true

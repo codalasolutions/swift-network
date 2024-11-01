@@ -19,9 +19,9 @@ public protocol DataTransferService {
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func request(with request: URLRequest) async throws -> Response<Data>
 
-    func request<T: Decodable>(with request: URLRequest, handler: @escaping (Result<T, Error>) -> Void)
-    func request<T: Decodable>(with request: URLRequest, handler: @escaping (Result<Response<T>, Error>) -> Void)
+    func request<T: Decodable>(with request: URLRequest, handler: @escaping @Sendable (Result<T, Error>) -> Void)
+    func request<T: Decodable>(with request: URLRequest, handler: @escaping @Sendable (Result<Response<T>, Error>) -> Void)
 
-    func request(with request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void)
-    func request(with request: URLRequest, handler: @escaping (Result<Response<Data>, Error>) -> Void)
+    func request(with request: URLRequest, handler: @escaping @Sendable (Result<Data, Error>) -> Void)
+    func request(with request: URLRequest, handler: @escaping @Sendable (Result<Response<Data>, Error>) -> Void)
 }
