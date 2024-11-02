@@ -4,166 +4,226 @@
 //  Created by Giorgi Kratsashvili on 11/1/22.
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import CSNetwork
 
-final class DefaultDataTransferServiceTests: XCTestCase {
-    fileprivate struct DecodableStub: Decodable {
+@Suite
+private struct DefaultDataTransferServiceTests {
+    private struct DecodableStub: Decodable, Sendable {
         let key: String
     }
-    fileprivate struct ErrorDummy: Error {}
 
-    private var sut: DataTransferService!
-    private let dummy = URLRequest(url: URLComponents().url!)
-    private var stub: URLProtocolStub.Stub? {
-        get { URLProtocolStub.stub }
-        set { URLProtocolStub.stub = newValue }
-    }
+    private struct ErrorDummy: Error {}
 
-    override func setUp() {
-        super.setUp()
-        stub = nil
-
-        let config = URLSessionConfiguration.ephemeral
-        config.protocolClasses = [URLProtocolStub.self]
-        let session = URLSession(configuration: config)
-
-        sut = DefaultDataTransferService(session: session)
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        stub = nil
-        sut = nil
-    }
-
+    @Test
     func testDefaultInit() {
-        let stub = DefaultDataTransferService()
-        XCTAssertEqual(stub.session, URLSession.shared)
+        let sut = DefaultDataTransferService()
+        #expect(sut.session == URLSession.shared)
     }
 
+    @Test
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func testAsyncJsonSuccess() async throws {
-        stub = .init(response: HTTPURLResponse(),
-                     data: .init("{\"key\":\"val\"}".utf8),
-                     error: nil)
+        class URLProtocolTestStub: URLProtocolStub {
+            override func stub() -> Stub {
+                .init(
+                    response: HTTPURLResponse(),
+                    data: .init("{\"key\":\"val\"}".utf8),
+                    error: nil
+                )
+            }
+        }
+
+        let sut = sut(for: URLProtocolTestStub.self)
 
         let response: DecodableStub = try await sut.request(with: dummy)
 
-        XCTAssertEqual(response.key, "val")
+        #expect(response.key == "val")
     }
 
+    @Test
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func testAsyncJsonFailError() async {
-        stub = .init(response: nil, data: nil, error: ErrorDummy())
-        do {
-            let _: DecodableStub = try await sut.request(with: dummy)
-            XCTFail()
-        } catch {
-            guard case .error = error as? DataTransferError
-            else {
-                XCTFail()
-                return
+        class URLProtocolTestStub: URLProtocolStub {
+            override func stub() -> Stub {
+                .init(
+                    response: nil,
+                    data: nil,
+                    error: ErrorDummy()
+                )
             }
+        }
+
+        let sut = sut(for: URLProtocolTestStub.self)
+
+        await #expect {
+            let _: DecodableStub = try await sut.request(with: dummy)
+        } throws: {
+            if case .error = $0 as? DataTransferError { true } else { false }
         }
     }
 
+    @Test
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func testAsyncDataSuccess() async throws {
-        let data = Data("Some random data...".utf8)
-        stub = .init(response: HTTPURLResponse(), data: data, error: nil)
+        class URLProtocolTestStub: URLProtocolStub {
+            static let data = Data("Some random data...".utf8)
+
+            override func stub() -> Stub {
+                .init(
+                    response: HTTPURLResponse(),
+                    data: Self.data,
+                    error: nil
+                )
+            }
+        }
+
+        let sut = sut(for: URLProtocolTestStub.self)
 
         let response: Data = try await sut.request(with: dummy)
 
-        XCTAssertEqual(response, data)
+        #expect(response == URLProtocolTestStub.data)
     }
 
+    @Test
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func testAsyncDataFailResponse() async {
-        stub = .init(response: URLResponse(), data: .init(), error: nil)
-        do {
-            let _: Data = try await sut.request(with: dummy)
-            XCTFail()
-        } catch {
-            guard case .response = error as? DataTransferError
-            else {
-                XCTFail()
-                return
-            }
-        }
-    }
-
-    func testJsonSuccess() {
-        stub = .init(response: HTTPURLResponse(),
-                     data: .init("{\"key\":\"value\"}".utf8),
-                     error: nil)
-
-        let ex = expectation(description: "")
-
-        sut.request(with: dummy) { (result: Result<DecodableStub, Error>) in
-            if case .success(let response) = result,
-               response.key == "value" {
-                ex.fulfill()
+        class URLProtocolTestStub: URLProtocolStub {
+            override func stub() -> Stub {
+                .init(
+                    response: URLResponse(),
+                    data: .init(),
+                    error: nil
+                )
             }
         }
 
-        wait(for: [ex], timeout: 0.1)
+        let sut = sut(for: URLProtocolTestStub.self)
+
+        await #expect {
+            let _: DecodableStub = try await sut.request(with: dummy)
+        } throws: {
+            if case .response = $0 as? DataTransferError { true } else { false }
+        }
     }
 
-    func testJsonFailParse() {
-        stub = .init(response: HTTPURLResponse(),
-                     data: .init("Broken json data".utf8),
-                     error: nil)
-
-        let ex = expectation(description: "")
-
-        sut.request(with: dummy) { (result: Result<DecodableStub, Error>) in
-            if case .failure(let error) = result,
-               case .parse = error as? DataTransferError {
-                ex.fulfill()
+    @Test
+    func testJsonSuccess() async {
+        class URLProtocolTestStub: URLProtocolStub {
+            override func stub() -> Stub {
+                .init(
+                    response: HTTPURLResponse(),
+                    data: .init("{\"key\":\"value\"}".utf8),
+                    error: nil
+                )
             }
         }
 
-        wait(for: [ex], timeout: 0.1)
+        let sut = sut(for: URLProtocolTestStub.self)
+
+        await confirmation { confirmation in
+            sut.request(with: dummy) { (result: Result<DecodableStub, Error>) in
+                if case .success(let response) = result,
+                   response.key == "value" {
+                    confirmation()
+                }
+            }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
     }
 
-    func testDataSuccess() {
-        let data = Data("Some kind of data.".utf8)
-        stub = .init(response: HTTPURLResponse(),
-                     data: data,
-                     error: nil)
-
-        let ex = expectation(description: "")
-
-        sut.request(with: dummy) { (result: Result<Data, Error>) in
-            if case .success(let response) = result,
-               response == data {
-                ex.fulfill()
+    @Test
+    func testJsonFailParse() async {
+        class URLProtocolTestStub: URLProtocolStub {
+            override func stub() -> Stub {
+                .init(
+                    response: HTTPURLResponse(),
+                    data: .init("Broken json data".utf8),
+                    error: nil
+                )
             }
         }
 
-        wait(for: [ex], timeout: 0.1)
+        let sut = sut(for: URLProtocolTestStub.self)
+
+        await confirmation { confirmation in
+            sut.request(with: dummy) { (result: Result<DecodableStub, Error>) in
+                if case .failure(let error) = result,
+                   case .parse = error as? DataTransferError {
+                    confirmation()
+                }
+            }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
     }
 
-    func testDataFailStatus() {
-        let _data = Data("{\"key\":\"value\"}".utf8)
-        stub = .init(response: HTTPURLResponse(url: URLComponents().url!,
-                                               statusCode: 404,
-                                               httpVersion: nil,
-                                               headerFields: nil),
-                     data: _data,
-                     error: nil)
+    @Test
+    func testDataSuccess() async {
+        class URLProtocolTestStub: URLProtocolStub {
+            static let data = Data("Some kind of data.".utf8)
 
-        let ex = expectation(description: "")
-
-        sut.request(with: dummy) { (result: Result<Data, Error>) in
-            if case .failure(let error) = result,
-               case .status(let response, let data) = error as? DataTransferError,
-               response.statusCode == 404, data == _data {
-                ex.fulfill()
+            override func stub() -> Stub {
+                .init(
+                    response: HTTPURLResponse(),
+                    data: Self.data,
+                    error: nil
+                )
             }
         }
 
-        wait(for: [ex], timeout: 0.1)
+        let sut = sut(for: URLProtocolTestStub.self)
+
+        await confirmation { confirmation in
+            sut.request(with: dummy) { (result: Result<Data, Error>) in
+                if case .success(let response) = result,
+                   response == URLProtocolTestStub.data {
+                    confirmation()
+                }
+            }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
     }
+
+    @Test
+    func testDataFailStatus() async {
+        class URLProtocolTestStub: URLProtocolStub {
+            static let data = Data("{\"key\":\"value\"}".utf8)
+
+            override func stub() -> Stub {
+                .init(
+                    response: HTTPURLResponse(
+                        url: URLComponents().url!,
+                        statusCode: 404,
+                        httpVersion: nil,
+                        headerFields: nil
+                    ),
+                    data: Self.data,
+                    error: nil
+                )
+            }
+        }
+
+        let sut = sut(for: URLProtocolTestStub.self)
+
+        await confirmation { confirmation in
+            sut.request(with: dummy) { (result: Result<Data, Error>) in
+                if case .failure(let error) = result,
+                   case .status(let response, let data) = error as? DataTransferError,
+                   response.statusCode == 404, data == URLProtocolTestStub.data {
+                    confirmation()
+                }
+            }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+    }
+
+    private func sut<T: URLProtocol>(for urlProtocolType: T.Type) -> DataTransferService {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [T.self]
+        let session = URLSession(configuration: config)
+        return DefaultDataTransferService(session: session)
+    }
+
+    private var dummy: URLRequest { .init(url: URLComponents().url!) }
 }

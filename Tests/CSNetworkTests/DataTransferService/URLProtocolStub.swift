@@ -5,15 +5,17 @@
 //
 
 import Foundation
-import XCTest
 
-final class URLProtocolStub: URLProtocol {
+class URLProtocolStub: URLProtocol {
     struct Stub {
         let response: URLResponse?
         let data: Data?
         let error: Error?
     }
-    nonisolated(unsafe) static var stub: Stub?
+
+    func stub() -> Stub {
+        fatalError()
+    }
 
     override class func canInit(with request: URLRequest) -> Bool {
         true
@@ -32,10 +34,7 @@ final class URLProtocolStub: URLProtocol {
     }
 
     private func respond() {
-        guard let stub = Self.stub else {
-            XCTFail("Received unexpected request with no stub set")
-            return
-        }
+        let stub = stub()
         if let response = stub.response {
             client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         }

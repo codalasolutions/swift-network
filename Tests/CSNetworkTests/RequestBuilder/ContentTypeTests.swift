@@ -4,24 +4,32 @@
 //  Created by Giorgi Kratsashvili on 10/18/22.
 //
 
-import XCTest
+import Testing
 @testable import CSNetwork
 
-final class ContentTypeTests: XCTestCase {
-    func testJson() {
-        _test(sut: .json)
+@Suite
+private struct ContentTypeTests {
+    @Test
+    private func testJson() {
+        test(sut: .json)
     }
 
-    func testPlain() {
-        _test(sut: .plain)
+    @Test
+    private func testUrlEncoded() {
+        test(sut: .urlencoded)
     }
 
-    func _test(sut: ContentType) {
+    @Test
+    private func testPlain() {
+        test(sut: .plain)
+    }
+
+    private func test(sut: ContentType) {
         let val = sut.rawValue
         switch sut {
-        case .json:       XCTAssertEqual(val, "application/json")
-        case .urlencoded: XCTAssertEqual(val, "application/x-www-form-urlencoded")
-        case .plain:      XCTAssertEqual(val, "text/plain")
+        case .json:       #expect(val == "application/json")
+        case .urlencoded: #expect(val == "application/x-www-form-urlencoded")
+        case .plain:      #expect(val == "text/plain")
         }
     }
 }

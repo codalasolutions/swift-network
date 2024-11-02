@@ -10,9 +10,9 @@ public protocol DataTransferService {
     typealias Response<T> = (response: HTTPURLResponse, data: T)
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    func request<T: Decodable>(with request: URLRequest) async throws -> T
+    func request<T: Decodable & Sendable>(with request: URLRequest) async throws -> T
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    func request<T: Decodable>(with request: URLRequest) async throws -> Response<T>
+    func request<T: Decodable & Sendable>(with request: URLRequest) async throws -> Response<T>
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     func request(with request: URLRequest) async throws -> Data
