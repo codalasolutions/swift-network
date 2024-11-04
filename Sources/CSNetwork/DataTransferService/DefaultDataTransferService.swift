@@ -22,7 +22,7 @@ open class DefaultDataTransferService: DataTransferService {
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     public func request<T: Decodable & Sendable>(with request: URLRequest) async throws -> Response<T> {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withUnsafeThrowingContinuation { continuation in
             self.request(with: request) { (result: Result<Response<T>, Error>) in
                 switch result {
                 case .success(let response):
@@ -41,7 +41,7 @@ open class DefaultDataTransferService: DataTransferService {
 
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
     public func request(with request: URLRequest) async throws -> Response<Data> {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withUnsafeThrowingContinuation { continuation in
             self.request(with: request) { (result: Result<Response<Data>, Error>) in
                 switch result {
                 case .success(let data):

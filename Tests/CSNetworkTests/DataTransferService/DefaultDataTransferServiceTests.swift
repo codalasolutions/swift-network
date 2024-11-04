@@ -122,7 +122,7 @@ private struct DefaultDataTransferServiceTests {
 
         let sut = sut(for: URLProtocolTestStub.self)
 
-        let result = await withCheckedContinuation { continuation in
+        let result = await withUnsafeContinuation { continuation in
             sut.request(with: dummy) { (result: Result<DecodableStub, Error>) in
                 let result = if case .success(let response) = result,
                                 response.key == "value" {
@@ -151,7 +151,7 @@ private struct DefaultDataTransferServiceTests {
 
         let sut = sut(for: URLProtocolTestStub.self)
 
-        let result = await withCheckedContinuation { continuation in
+        let result = await withUnsafeContinuation { continuation in
             sut.request(with: dummy) { (result: Result<DecodableStub, Error>) in
                 let result = if case .failure(let error) = result,
                                 case .parse = error as? DataTransferError {
@@ -182,7 +182,7 @@ private struct DefaultDataTransferServiceTests {
 
         let sut = sut(for: URLProtocolTestStub.self)
 
-        let result = await withCheckedContinuation { continuation in
+        let result = await withUnsafeContinuation { continuation in
             sut.request(with: dummy) { (result: Result<Data, Error>) in
                 let result = if case .success(let response) = result,
                                 response == URLProtocolTestStub.data {
@@ -218,7 +218,7 @@ private struct DefaultDataTransferServiceTests {
 
         let sut = sut(for: URLProtocolTestStub.self)
 
-        let result = await withCheckedContinuation { continuation in
+        let result = await withUnsafeContinuation { continuation in
             sut.request(with: dummy) { (result: Result<Data, Error>) in
                 let result = if case .failure(let error) = result,
                                 case .status(let response, let data) = error as? DataTransferError,
