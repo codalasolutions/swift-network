@@ -122,15 +122,19 @@ private struct DefaultDataTransferServiceTests {
 
         let sut = sut(for: URLProtocolTestStub.self)
 
-        await confirmation { confirmation in
+        let result = await withCheckedContinuation { continuation in
             sut.request(with: dummy) { (result: Result<DecodableStub, Error>) in
-                if case .success(let response) = result,
-                   response.key == "value" {
-                    confirmation()
+                let result = if case .success(let response) = result,
+                                response.key == "value" {
+                    true
+                } else {
+                    false
                 }
+                continuation.resume(returning: result)
             }
-            try? await Task.sleep(nanoseconds: 10_000_000)
         }
+
+        #expect(result)
     }
 
     @Test
@@ -147,15 +151,19 @@ private struct DefaultDataTransferServiceTests {
 
         let sut = sut(for: URLProtocolTestStub.self)
 
-        await confirmation { confirmation in
+        let result = await withCheckedContinuation { continuation in
             sut.request(with: dummy) { (result: Result<DecodableStub, Error>) in
-                if case .failure(let error) = result,
-                   case .parse = error as? DataTransferError {
-                    confirmation()
+                let result = if case .failure(let error) = result,
+                                case .parse = error as? DataTransferError {
+                    true
+                } else {
+                    false
                 }
+                continuation.resume(returning: result)
             }
-            try? await Task.sleep(nanoseconds: 10_000_000)
         }
+
+        #expect(result)
     }
 
     @Test
@@ -174,15 +182,19 @@ private struct DefaultDataTransferServiceTests {
 
         let sut = sut(for: URLProtocolTestStub.self)
 
-        await confirmation { confirmation in
+        let result = await withCheckedContinuation { continuation in
             sut.request(with: dummy) { (result: Result<Data, Error>) in
-                if case .success(let response) = result,
-                   response == URLProtocolTestStub.data {
-                    confirmation()
+                let result = if case .success(let response) = result,
+                                response == URLProtocolTestStub.data {
+                    true
+                } else {
+                    false
                 }
+                continuation.resume(returning: result)
             }
-            try? await Task.sleep(nanoseconds: 10_000_000)
         }
+
+        #expect(result)
     }
 
     @Test
@@ -206,16 +218,21 @@ private struct DefaultDataTransferServiceTests {
 
         let sut = sut(for: URLProtocolTestStub.self)
 
-        await confirmation { confirmation in
+        let result = await withCheckedContinuation { continuation in
             sut.request(with: dummy) { (result: Result<Data, Error>) in
-                if case .failure(let error) = result,
-                   case .status(let response, let data) = error as? DataTransferError,
-                   response.statusCode == 404, data == URLProtocolTestStub.data {
-                    confirmation()
+                let result = if case .failure(let error) = result,
+                                case .status(let response, let data) = error as? DataTransferError,
+                                response.statusCode == 404,
+                                data == URLProtocolTestStub.data {
+                    true
+                } else {
+                    false
                 }
+                continuation.resume(returning: result)
             }
-            try? await Task.sleep(nanoseconds: 10_000_000)
         }
+
+        #expect(result)
     }
 
     private func sut<T: URLProtocol>(for urlProtocolType: T.Type) -> DataTransferService {
